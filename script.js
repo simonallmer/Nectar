@@ -1498,9 +1498,7 @@ function updateOptionsContent() {
 }
 
 function endGame() {
-    if (confirm("Are you sure you want to end the game?")) {
-        location.reload(); // Simple reload to go back to main menu
-    }
+    location.reload(); // Reload to go back to main menu
 }
 
 board.addEventListener('click', handleHexClick);
