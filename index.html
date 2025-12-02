@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nectar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Main Menu -->
+    <div id="main-menu" class="menu-screen">
+        <h1 class="game-title">NECTAR</h1>
+        <div class="menu-buttons">
+            <button class="menu-btn" onclick="showPlayerSelection()">START GAME</button>
+            <button class="menu-btn" onclick="showRules()">RULES</button>
+            <button class="menu-btn" onclick="window.location.href='https://simonallmer.com'">BACK TO SA</button>
+        </div>
+        <div class="copyright">© 2021-2025 Simon Allmer Entertainment</div>
+    </div>
+
+    <!-- Player Selection Screen -->
+    <div id="player-selection" class="menu-screen" style="display: none;">
+        <h1 class="game-title">SELECT PLAYERS</h1>
+        <div class="player-buttons">
+            <button class="player-btn" onclick="selectPlayerCount(2)">2</button>
+            <button class="player-btn" onclick="selectPlayerCount(3)">3</button>
+            <button class="player-btn" onclick="selectPlayerCount(4)">4</button>
+            <button class="player-btn" onclick="selectPlayerCount(5)">5</button>
+            <button class="player-btn" onclick="selectPlayerCount(6)">6</button>
+        </div>
+
+        <!-- Player Names Section (hidden initially) -->
+        <div id="player-names-section" style="display: none; margin-top: 30px;">
+            <h2 style="color: #d4af37; font-size: 24px; margin-bottom: 20px;">Enter Player Names (Optional)</h2>
+            <div id="player-name-inputs"></div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px;">
+                <button class="menu-btn" onclick="startGameWithNames()">BEGIN GAME</button>
+                <button class="menu-btn back-btn" onclick="showMainMenu()">BACK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rules Modal -->
+    <div id="rules-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeRules()">&times;</span>
+            <h2>NECTAR RULES</h2>
+            <div class="rules-text">
+                <h3>GOAL</h3>
+                <p>The goal of the game is to have at least ten nectar points in your own honeycomb. To achieve this,
+                    the bees have to collect nectar tiles and turn them into their honeycomb without being attacked by
+                    hostile bee colonies.</p>
+
+                <h3>PREPARATION</h3>
+                <p>• Each player receives three bee figures in one color.<br>
+                    • The players each choose one of the three combs that is closest to the black fields and place their
+                    bee figures on the three dashed fields.</p>
+
+                <h3>GAMEPLAY 1: Weather / Randomizer</h3>
+                <p>Whoever was last stung by a bee begins. If this cannot be determined, the oldest player begins.
+                    Afterwards the game continues clockwise.</p>
+                <p>The player whose turn it is checks the weather (randomizer). The number indicates which nectar tokens
+                    are placed on the board. (See illustration). If three, five or six is generated, nothing changes.
+                </p>
+                <p>If a bee stands on a nectar field, it covers it and prevents the formation of new nectar tokens
+                    there. After putting the tokens on the board, the swarming begins...</p>
+
+                <h3>GAMEPLAY 2: Swarm</h3>
+                <p>Each player can move all three bees one space forward. If a bee lands on a nectar token, it carries
+                    it under the game piece. A bee can carry as many tokens as it wants. In this state it is vulnerable
+                    to enemies.</p>
+                <p>If an enemy bee moves onto the field of the transport bee, it takes over the load and places the
+                    stung bee on one of its three honeycomb fields back. A bee in a honeycomb is safe from enemies
+                    because they cannot enter.</p>
+                <p>If the carrier bee made it back to its home honeycomb field unharmed, the nectar tokens can be
+                    brought to safety. The player places the tokens in front of him, visible to everyone. Those tokens
+                    cannot be brought back to the playing field.</p>
+                <p>The carried nectar tokens can also be used as a BOOST. The carried token is put back on the stack and
+                    the carrier bee moves forward by as many fields as the nectar is worth.</p>
+                <p>New nectar tokens can only be picked up when the previous movement is finished.</p>
+                <p>To transport the nectar more efficiently bees can also form a CHAIN. They are positioned next to each
+                    other and the load is transported without using up the steps. The load is passed on to any bee in
+                    the chain. Without nectar a bee cannot be attacked and is therefore suitable as a BLOCKADE. In
+                    general, no bee can be overflown or share a field with other bees. If the player has moved every bee
+                    he wanted to move (at least one), his round ends and he passes the turn to the next player.</p>
+
+                <h3>END</h3>
+                <p>As soon as the first player in his honeycomb has reached a nectar value of at least ten, he wins the
+                    game.</p>
+                <p>Afterwards he takes his pieces from the board and the game is played for the second and third place.
+                </p>
+
+                <h3>Multiplayer 4-6</h3>
+                <p>If there are four or more players, only two figures per colony are used. In the beginning, one field
+                    distance is left on the starting fields. Also the ones and two nectar tokens are placed
+                    independently of the colour on the black and golden fields.</p>
+                <p>The starting honeycomb can thus be freely chosen.</p>
+                <p>After the weather is checked, the turn is passed to the player on the right. The direction is still
+                    clockwise for Multi Player.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container" style="display: none;">
+        <div id="ui-layer" style="position: absolute; top: 20px; left: 20px; z-index: 100;">
+            <div id="weather-display"
+                style="margin-top: 10px; font-size: 24px; color: white; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px;">
+            </div>
+            <button id="options-btn" onclick="toggleOptions()">⚙️</button>
+        </div>
+
+        <!-- Options Modal -->
+        <div id="options-modal" class="modal" style="display: none;">
+            <div class="modal-content options-content">
+                <h2>PAUSED</h2>
+
+                <div id="player-scores-list">
+                    <!-- Player scores will be injected here -->
+                </div>
+
+                <div class="tip-box">
+                    <p><strong>TIP:</strong> Use <span>SPACE BAR</span> to End Turn</p>
+                </div>
+
+                <button class="menu-btn" onclick="toggleOptions()">RESUME GAME</button>
+                <button class="menu-btn end-game-btn" onclick="endGame()">END GAME</button>
+            </div>
+        </div>
+
+        <div id="bee-panel"></div>
+        <div id="win-modal"
+            style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; flex-direction: column; color: white;">
+            <h1 id="winner-text" style="font-size: 48px; margin-bottom: 20px;">Player Wins!</h1>
+            <button onclick="location.reload()"
+                style="padding: 15px 30px; font-size: 24px; cursor: pointer; background: #2ecc71; border: none; color: white; border-radius: 5px;">Play
+                Again</button>
+        </div>
+        <div id="board"></div>
+
+        <!-- Status Bar Container -->
+        <div id="status-bar-container"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
