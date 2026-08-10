@@ -1533,21 +1533,31 @@ function executeBoost(beeMesh, tokenIndex) {
 function moveAllOut() {
   if (round !== 1) return;
   const player = players[currentPlayerIndex];
-  const myBees = bees.filter(b=>b.metadata.playerId===currentPlayerIndex);
-  const homeBees = myBees.filter(b=>player.homeCorners.some(h=>h.q===b.metadata.q&&h.r===b.metadata.r));
+  const isHome = (q,r) => player.homeCorners.some(h=>h.q===q && h.r===r);
+  const homeBees = bees.filter(b => b.metadata.playerId===currentPlayerIndex &&
+                                    isHome(b.metadata.q, b.metadata.r));
 
-  homeBees.forEach(bee => {
-    const validMoves = [];
-    getNeighbors(bee.metadata.q, bee.metadata.r).forEach(n => {
-      if (isValidMoveTarget(bee.metadata, n.q, n.r)) validMoves.push(n);
+  // A bee sitting in the honeycomb can block a sibling's only exit, so sweep
+  // repeatedly until nobody can leave any more. Home hexes are excluded as
+  // targets — shuffling along the honeycomb is not "moving out".
+  let movedAny = false, movedThisPass = true;
+  while (movedThisPass) {
+    movedThisPass = false;
+    homeBees.forEach(bee => {
+      if (bee.metadata.remainingMoves <= 0) return;
+      if (!isHome(bee.metadata.q, bee.metadata.r)) return;   // already outside
+      const exits = getNeighbors(bee.metadata.q, bee.metadata.r)
+        .filter(n => !isHome(n.q, n.r) && isValidMoveTarget(bee.metadata, n.q, n.r));
+      if (exits.length === 0) return;
+      const target = exits[Math.floor(Math.random() * exits.length)];
+      executeMove(bee, target.q, target.r);
+      movedThisPass = true;
+      movedAny = true;
     });
-    if (validMoves.length === 0) return;
-    const target = validMoves[Math.floor(Math.random() * validMoves.length)];
-    executeMove(bee, target.q, target.r);
-  });
+  }
 
   document.getElementById('move-out-btn').style.display = 'none';
-  playerHasMovedThisTurn = true;
+  if (movedAny) playerHasMovedThisTurn = true;
   updateHUD();
 }
 
